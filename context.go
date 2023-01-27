@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -12,6 +13,7 @@ import (
 var ErrHelp = errors.New("help requested")
 
 type Context struct {
+	context.Context
 	out  io.Writer
 	cmd  *Command
 	args []string // non-flag arguments

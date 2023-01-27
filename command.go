@@ -47,7 +47,9 @@ type Command struct {
 	Args    []string // positional arguments
 	Flags   []*Flag  // flag arguments
 	Options Options
+	PreRun  func(*Context) error
 	Run     func(*Context) error
+	PostRun func(*Context) error
 
 	children []*Command
 	parent   *Command
@@ -103,7 +105,7 @@ func (c *Command) ExecContext(ctx context.Context, args []string) error {
 		return err
 	}
 
-	cctx := newContext(cmd)
+	cctx := newContext(ctx, cmd)
 	if err = cctx.Parse(args); err != nil {
 		if errors.Is(err, ErrHelp) {
 			return nil
@@ -111,8 +113,24 @@ func (c *Command) ExecContext(ctx context.Context, args []string) error {
 		return err
 	}
 
+	for p := cmd; p != nil; p = p.parent {
+		if p.PreRun != nil {
+			if err = p.PreRun(cctx); err != nil {
+				return err
+			}
+		}
+	}
+
 	if cmd.Run != nil {
 		return cmd.Run(cctx)
+	}
+
+	for p := cmd; p != nil; p = p.parent {
+		if p.PostRun != nil {
+			if err = p.PostRun(cctx); err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }
@@ -155,12 +173,13 @@ LOOP:
 	return root, flags, nil
 }
 
-func newContext(cmd *Command) *Context {
+func newContext(c context.Context, cmd *Command) *Context {
 	ctx := &Context{
-		cmd:  cmd,
-		lset: make(map[string]*Flag),
-		sset: make(map[byte]*Flag),
-		out:  os.Stdout,
+		Context: c,
+		cmd:     cmd,
+		lset:    make(map[string]*Flag),
+		sset:    make(map[byte]*Flag),
+		out:     os.Stdout,
 	}
 
 	for p := cmd; p != nil; p = p.parent {
@@ -187,8 +206,9 @@ func (c *Command) Help() {
 		fmt.Fprint(&buf, "[command] ")
 	}
 	if len(c.Flags) > 0 {
-		fmt.Fprintln(&buf, "[option]*")
+		fmt.Fprint(&buf, "[option]*")
 	}
+	fmt.Fprintln(&buf)
 
 	if len(c.Example) > 0 {
 		fmt.Fprintf(&buf, "\nExample:\n  %s\n", c.Example)
