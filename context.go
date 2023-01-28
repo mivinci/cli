@@ -8,6 +8,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"time"
 )
 
 var ErrHelp = errors.New("help requested")
@@ -51,6 +52,18 @@ func (c *Context) Bool(key string) bool {
 		return false
 	}
 	return bool(*bv)
+}
+
+func (c *Context) Duration(key string) time.Duration {
+	flag, ok := c.lset[key]
+	if !ok {
+		return 0
+	}
+	dv, ok := flag.Value.(*durationValue)
+	if !ok {
+		return 0
+	}
+	return time.Duration(*dv)
 }
 
 func (c *Context) IP(key string) net.IP {

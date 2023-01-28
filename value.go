@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"time"
 )
 
 type Value interface {
@@ -69,6 +70,26 @@ func (v boolValue) Type() string {
 
 func Bool(def bool) Value {
 	return (*boolValue)(&def)
+}
+
+type durationValue time.Duration
+
+func (v *durationValue) Set(s string) error {
+	d, err := time.ParseDuration(s)
+	*v = durationValue(d)
+	return err
+}
+
+func (v durationValue) String() string {
+	return time.Duration(v).String()
+}
+
+func (durationValue) Type() string {
+	return "duration"
+}
+
+func Duration(d time.Duration) Value {
+	return (*durationValue)(&d)
 }
 
 type ipValue net.IP
