@@ -35,23 +35,23 @@ Here's a simple helloworld example.
 
 ```go
 import (
-	"os"
+    "os"
 
-	"github.com/mivinci/cli"
+    "github.com/mivinci/cli"
 )
 
 var cmd = cli.Command{
-	Name:  "hello",
-	Usage: "A helloworld command line app.",
-	Args:  []string{"name"},
-	Run: func(ctx *cli.Context) error {
-		println("Hello,", ctx.Args()[0])
-		return nil
-	},
+    Name:  "hello",
+    Usage: "A helloworld command line app.",
+    Args:  []string{"name"},
+    Run: func(ctx *cli.Context) error {
+        println("Hello,", ctx.Args()[0])
+        return nil
+    },
 }
 
 func main() {
-	cmd.Exec(os.Args)
+    cmd.Exec(os.Args)
 }
 ```
 
