@@ -10,10 +10,8 @@ import (
 
 func main() {
 	root := cli.Command{
-		Name: "example",
-		Usage: `example description example description example description.
-example description example description example description
-example description example`,
+		Name:  "example",
+		Usage: `A command line app demonstrating subcommands.`,
 		Flags: []*cli.Flag{
 			{
 				Name:  "address",
