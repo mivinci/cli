@@ -211,7 +211,7 @@ func (c *Command) Help() {
 	fmt.Fprintln(&buf)
 
 	if len(c.Example) > 0 {
-		fmt.Fprintf(&buf, "\nExample:\n  %s\n", c.Example)
+		fmt.Fprintf(&buf, "\nExamples:\n  %s\n", c.Example)
 	}
 
 	if len(c.children) > 0 {
